@@ -6,11 +6,12 @@ In the same way you can use 'java.library.path' option instead.
 By default, binding expects `imgui-java64` file name.
 You can change that by using `imgui.library.name` VM option (ex: `-Dimgui.library.name=custom-lib-name.dll`).
 
-| OS      | Library               |
-|---------|-----------------------|
-| Windows | imgui-java64.dll      |
-| Linux   | libimgui-java64.so    |
-| macOS   | libimgui-java64.dylib |
+| OS      | Library                                         |
+|---------|-------------------------------------------------|
+| Windows | imgui-java64.dll                                |
+| Linux   | libimgui-java64.so                              |
+| macOS   | libimgui-java64.dylib, libimgui-javaarm64.dylib |
+
 
 Freetype directory contains same libraries, but with Freetype support.
 
