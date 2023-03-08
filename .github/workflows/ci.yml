@@ -42,7 +42,9 @@ jobs:
           - type: linux
             expected: /tmp/imgui/libsNative/linux64/libimgui-java64.so
           - type: macos
-            expected: /tmp/imgui/libsNative/macosx64/libimgui-java64.dylib
+            expected: |
+              /tmp/imgui/libsNative/macosx64/libimgui-java64.dylib
+              /tmp/imgui/libsNative/macosxarm64/libimgui-javaarm64.dylib
         exclude:
           - os: ubuntu-latest
             type: macos
@@ -77,7 +79,7 @@ jobs:
         run: |
           sudo xcode-select -switch /Applications/Xcode_14.2.app && /usr/bin/xcodebuild -version
 
-      - name: Download FreeType - Compile & Install
+      - name: FreeType - Install (macOS)
         if: matrix.os == 'macos-latest' && matrix.freetype == true
         run: |
           brew update
