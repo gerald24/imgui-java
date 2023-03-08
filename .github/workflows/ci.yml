@@ -42,7 +42,7 @@ jobs:
           - type: linux
             expected: /tmp/imgui/libsNative/linux64/libimgui-java64.so
           - type: macos
-            expected: /tmp/imgui/libsNative/macosx*64/libimgui-java*64.dylib
+            expected: /tmp/imgui/libsNative/macosx64/libimgui-java*64.dylib
         exclude:
           - os: ubuntu-latest
             type: macos
@@ -99,6 +99,11 @@ jobs:
 
       - name: Build
         run: ./gradlew imgui-binding:generateLibs -Denvs=${{ matrix.type }} -Dfreetype=${{ matrix.freetype }}
+
+      - name: Merge Native Libraries
+        if: matrix.os == 'macos-latest'
+        run: |
+          mv /tmp/imgui/libsNative/macosxarm64/libimgui-javaarm64.dylib /tmp/imgui/libsNative/macosx64
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
