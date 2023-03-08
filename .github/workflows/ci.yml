@@ -42,9 +42,7 @@ jobs:
           - type: linux
             expected: /tmp/imgui/libsNative/linux64/libimgui-java64.so
           - type: macos
-            expected: |
-              /tmp/imgui/libsNative/macosx64/libimgui-java64.dylib
-              /tmp/imgui/libsNative/macosxarm64/libimgui-javaarm64.dylib
+            expected: /tmp/imgui/libsNative/macosx*64/libimgui-java*64.dylib
         exclude:
           - os: ubuntu-latest
             type: macos
