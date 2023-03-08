@@ -75,12 +75,7 @@ jobs:
       - name: Build Setup Mac xcode
         if: matrix.os == 'macos-latest'
         run: |
-          # See https://github.com/actions/virtual-environments/issues/2557
-          sudo mv /Library/Developer/CommandLineTools/SDKs/* /tmp
-          sudo mv /Applications/Xcode.app /Applications/Xcode.app.bak
-          sudo mv /Applications/Xcode_12.4.app /Applications/Xcode.app
-          sudo xcode-select -switch /Applications/Xcode.app
-          /usr/bin/xcodebuild -version
+          sudo xcode-select -switch /Applications/Xcode_14.2.app && /usr/bin/xcodebuild -version
           sudo mkdir /opt/freetype
 
       - name: Download FreeType - Compile & Install
