@@ -76,19 +76,12 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: |
           sudo xcode-select -switch /Applications/Xcode_14.2.app && /usr/bin/xcodebuild -version
-          sudo mkdir /opt/freetype
 
       - name: Download FreeType - Compile & Install
         if: matrix.os == 'macos-latest' && matrix.freetype == true
-        working-directory: /opt/freetype
         run: |
-          # freetype download and untar and install
-          sudo wget -O freetype.tar.gz ${{ env.FREETYPE_URL }}
-          sudo tar -xzf freetype.tar.gz -C . --strip-components=1
-          
-          sudo ./configure CFLAGS="-arch arm64 -arch x86_64" --with-zlib=no --with-bzip2=no --with-png=no --with-harfbuzz=no --with-brotli=no
-          sudo make
-          sudo make install
+          brew update
+          brew install freetype
 
       - name: FreeType - Install (Linux)
         if: matrix.os == 'ubuntu-latest' && matrix.type == 'linux' && matrix.freetype == true
