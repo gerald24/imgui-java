@@ -19,7 +19,6 @@ class GenerateLibs extends DefaultTask {
     private final boolean forWindows = buildEnvs?.contains('windows')
     private final boolean forLinux = buildEnvs?.contains('linux')
     private final boolean forMac = buildEnvs?.contains('macos')
-    private final boolean isARM = System.getProperty("os.arch").equals("arm") || System.getProperty("os.arch").startsWith("aarch64")
 
     private final boolean isLocal = System.properties.containsKey('local')
     private final boolean withFreeType = Boolean.valueOf(System.properties.getProperty('freetype', 'false'))
@@ -86,13 +85,13 @@ class GenerateLibs extends DefaultTask {
 
         if (forWindows) {
             def win64 = BuildTarget.newDefaultTarget(BuildTarget.TargetOs.Windows, true)
-            addFreeTypeIfEnabled(win64)
+            addFreeTypeIfEnabled(win64, false)
             buildTargets += win64
         }
 
         if (forLinux) {
             def linux64 = BuildTarget.newDefaultTarget(BuildTarget.TargetOs.Linux, true)
-            addFreeTypeIfEnabled(linux64)
+            addFreeTypeIfEnabled(linux64, false)
             buildTargets += linux64
         }
 
@@ -102,14 +101,14 @@ class GenerateLibs extends DefaultTask {
             mac64.cppFlags += ' -std=c++14'
             mac64.cppFlags = mac64.cppFlags.replace('10.7', minMacOsVersion)
             mac64.linkerFlags = mac64.linkerFlags.replace('10.7', minMacOsVersion)
-            addFreeTypeIfEnabled(mac64)
+            addFreeTypeIfEnabled(mac64, false)
             buildTargets += mac64
 
             def macArm = BuildTarget.newDefaultTarget(BuildTarget.TargetOs.MacOsX, true, true)
             macArm.cppFlags += ' -std=c++14'
             macArm.cppFlags = macArm.cppFlags.replace('10.7', minMacOsVersion)
             macArm.linkerFlags = macArm.linkerFlags.replace('10.7', minMacOsVersion)
-            addFreeTypeIfEnabled(macArm)
+            addFreeTypeIfEnabled(macArm, true)
             buildTargets += macArm
         }
 
@@ -132,7 +131,7 @@ class GenerateLibs extends DefaultTask {
         BuildExecutor.executeAnt(jniDir + '/build.xml', '-v', 'pack-natives')
     }
 
-    void addFreeTypeIfEnabled(BuildTarget target) {
+    void addFreeTypeIfEnabled(BuildTarget target, boolean isArm) {
         if (!withFreeType) {
             return
         }
@@ -146,7 +145,7 @@ class GenerateLibs extends DefaultTask {
                 break
             case BuildTarget.TargetOs.MacOsX:
                 target.cppFlags += ' -I/usr/local/include/freetype2'
-                if (isARM) {
+                if (isArm) {
                     //For GHA
                     target.cppFlags += ' -I/usr/local/arm64/include/freetype2'
                 }
