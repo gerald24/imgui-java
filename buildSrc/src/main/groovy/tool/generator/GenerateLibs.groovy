@@ -105,12 +105,12 @@ class GenerateLibs extends DefaultTask {
             addFreeTypeIfEnabled(mac64)
             buildTargets += mac64
 
-            def macM1 = BuildTarget.newDefaultTarget(BuildTarget.TargetOs.MacOsX, true, true)
-            macM1.cppFlags += ' -std=c++14'
-            macM1.cppFlags = macM1.cppFlags.replace('10.7', minMacOsVersion)
-            macM1.linkerFlags = macM1.linkerFlags.replace('10.7', minMacOsVersion)
-            addFreeTypeIfEnabled(macM1)
-            buildTargets += macM1
+            def macArm = BuildTarget.newDefaultTarget(BuildTarget.TargetOs.MacOsX, true, true)
+            macArm.cppFlags += ' -std=c++14'
+            macArm.cppFlags = macArm.cppFlags.replace('10.7', minMacOsVersion)
+            macArm.linkerFlags = macArm.linkerFlags.replace('10.7', minMacOsVersion)
+            addFreeTypeIfEnabled(macArm)
+            buildTargets += macArm
         }
 
         new AntScriptGenerator().generate(buildConfig, buildTargets)
@@ -146,7 +146,7 @@ class GenerateLibs extends DefaultTask {
                 break
             case BuildTarget.TargetOs.MacOsX:
                 target.cppFlags += ' -I/usr/local/include/freetype2'
-		if (isARM) {
+                if (isARM) {
                     //For GHA
                     target.cppFlags += ' -I/usr/local/arm64/include/freetype2'
                 }
