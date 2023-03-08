@@ -30,11 +30,12 @@ jobs:
             imgui-lwjgl3/build/libs/*.jar
 
   build-natives:
-    name: Build Native (${{ matrix.type }}${{ matrix.freetype && ', freetype' || ''  }})
+    name: Build Native (${{ matrix.type }} ${{ matrix.platform }}${{ matrix.freetype && ', freetype' || ''  }})
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest ]
         type: [ windows, linux, macos ]
+        platform: [x64, arm64]
         freetype: [ true, false ]
         include:
           - type: windows
@@ -42,10 +43,14 @@ jobs:
           - type: linux
             expected: /tmp/imgui/libsNative/linux64/libimgui-java64.so
           - type: macos
-            expected: /tmp/imgui/libsNative/macosx64/libimgui-java*64.dylib
+            expected: /tmp/imgui/libsNative/macosx64/libimgui-java64.dylib
+          - platform: arm64
+            expected: /tmp/imgui/libsNative/macosxarm64/libimgui-javaarm64.dylib
         exclude:
           - os: ubuntu-latest
             type: macos
+          - os: ubuntu-latest
+            platform: arm64
           - os: macos-latest
             type: windows
           - os: macos-latest
@@ -99,11 +104,6 @@ jobs:
 
       - name: Build
         run: ./gradlew imgui-binding:generateLibs -Denvs=${{ matrix.type }} -Dfreetype=${{ matrix.freetype }}
-
-      - name: Merge Native Libraries
-        if: matrix.os == 'macos-latest'
-        run: |
-          mv /tmp/imgui/libsNative/macosxarm64/libimgui-javaarm64.dylib /tmp/imgui/libsNative/macosx64
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3

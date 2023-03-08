@@ -19,6 +19,7 @@ class GenerateLibs extends DefaultTask {
     private final boolean forWindows = buildEnvs?.contains('windows')
     private final boolean forLinux = buildEnvs?.contains('linux')
     private final boolean forMac = buildEnvs?.contains('macos')
+    private final boolean isARM = System.getProperty("os.arch").equals("arm") || System.getProperty("os.arch").startsWith("aarch64")
 
     private final boolean isLocal = System.properties.containsKey('local')
     private final boolean withFreeType = Boolean.valueOf(System.properties.getProperty('freetype', 'false'))
@@ -97,19 +98,21 @@ class GenerateLibs extends DefaultTask {
 
         if (forMac) {
             def minMacOsVersion = '10.15'
-            def mac64 = BuildTarget.newDefaultTarget(BuildTarget.TargetOs.MacOsX, true, false)
-            mac64.cppFlags += ' -std=c++14'
-            mac64.cppFlags = mac64.cppFlags.replace('10.7', minMacOsVersion)
-            mac64.linkerFlags = mac64.linkerFlags.replace('10.7', minMacOsVersion)
-            addFreeTypeIfEnabled(mac64, false)
-            buildTargets += mac64
-
-            def macArm = BuildTarget.newDefaultTarget(BuildTarget.TargetOs.MacOsX, true, true)
-            macArm.cppFlags += ' -std=c++14'
-            macArm.cppFlags = macArm.cppFlags.replace('10.7', minMacOsVersion)
-            macArm.linkerFlags = macArm.linkerFlags.replace('10.7', minMacOsVersion)
-            addFreeTypeIfEnabled(macArm, true)
-            buildTargets += macArm
+            if (isARM) {
+                def macArm = BuildTarget.newDefaultTarget(BuildTarget.TargetOs.MacOsX, true, true)
+                macArm.cppFlags += ' -std=c++14'
+                macArm.cppFlags = macArm.cppFlags.replace('10.7', minMacOsVersion)
+                macArm.linkerFlags = macArm.linkerFlags.replace('10.7', minMacOsVersion)
+                addFreeTypeIfEnabled(macArm, true)
+                buildTargets += macArm
+            } else {
+                def mac64 = BuildTarget.newDefaultTarget(BuildTarget.TargetOs.MacOsX, true, false)
+                mac64.cppFlags += ' -std=c++14'
+                mac64.cppFlags = mac64.cppFlags.replace('10.7', minMacOsVersion)
+                mac64.linkerFlags = mac64.linkerFlags.replace('10.7', minMacOsVersion)
+                addFreeTypeIfEnabled(mac64, false)
+                buildTargets += mac64
+            }
         }
 
         new AntScriptGenerator().generate(buildConfig, buildTargets)
@@ -124,8 +127,11 @@ class GenerateLibs extends DefaultTask {
         if (forLinux)
             BuildExecutor.executeAnt(jniDir + '/build-linux64.xml', commonParams)
         if (forMac) {
-            BuildExecutor.executeAnt(jniDir + '/build-macosx64.xml', commonParams)
-            BuildExecutor.executeAnt(jniDir + '/build-macosxarm64.xml', commonParams)
+            if (isARM) {
+                BuildExecutor.executeAnt(jniDir + '/build-macosxarm64.xml', commonParams)
+            } else {
+                BuildExecutor.executeAnt(jniDir + '/build-macosx64.xml', commonParams)
+            }
         }
 
         BuildExecutor.executeAnt(jniDir + '/build.xml', '-v', 'pack-natives')
